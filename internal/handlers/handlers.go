@@ -3,31 +3,48 @@ package handlers
 import (
     "net/http"
     "price-estimation-api/internal/domain"
-    "price-estimation-api/internal/adapters/db"
-    "price-estimation-api/internal/database"
+    "price-estimation-api/internal/ports"
+    "strconv"
+
     "github.com/gin-gonic/gin"
 )
 
-var repo = db.NewPostgresEstimateRepository(database.DB)
+type Handlers struct {
+    estimateRepo ports.EstimateRepository
+}
 
-func CreateEstimate(c *gin.Context) {
+func NewHandlers(repo ports.EstimateRepository) *Handlers {
+    return &Handlers{estimateRepo: repo}
+}
+
+func (h *Handlers) CreateEstimate(c *gin.Context) {
     var estimate domain.Estimate
     if err := c.ShouldBindJSON(&estimate); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    estimate, err := repo.CreateEstimate(estimate)
+    newEstimate, err := h.estimateRepo.CreateEstimate(estimate)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusCreated, estimate)
+    c.JSON(http.StatusCreated, newEstimate)
 }
 
-func GetEstimates(c *gin.Context) {
-    estimates, err := repo.GetEstimates()
+func (h *Handlers) GetEstimates(c *gin.Context) {
+    limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+    if err != nil || limit <= 0 {
+        limit = 10
+    }
+
+    offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+    if err != nil || offset < 0 {
+        offset = 0
+    }
+
+    estimates, err := h.estimateRepo.GetEstimates()
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -35,9 +52,14 @@ func GetEstimates(c *gin.Context) {
     c.JSON(http.StatusOK, estimates)
 }
 
-func GetEstimate(c *gin.Context) {
-    id := c.Param("id")
-    estimate, err := repo.GetEstimateByID(id)
+func (h *Handlers) GetEstimate(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        return
+    }
+
+    estimate, err := h.estimateRepo.GetEstimateByID(id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -45,29 +67,41 @@ func GetEstimate(c *gin.Context) {
     c.JSON(http.StatusOK, estimate)
 }
 
-func UpdateEstimate(c *gin.Context) {
-    id := c.Param("id")
+func (h *Handlers) UpdateEstimate(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        return
+    }
+
     var estimate domain.Estimate
     if err := c.ShouldBindJSON(&estimate); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+    estimate.ID = id
 
-    estimate.ProductID = id
-    updatedEstimate, err := repo.UpdateEstimate(estimate)
+    updatedEstimate, err := h.estimateRepo.UpdateEstimate(estimate)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
+
     c.JSON(http.StatusOK, updatedEstimate)
 }
 
-func DeleteEstimate(c *gin.Context) {
-    id := c.Param("id")
-    err := repo.DeleteEstimate(id)
+func (h *Handlers) DeleteEstimate(c *gin.Context) {
+    id, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        return
+    }
+
+    err = h.estimateRepo.DeleteEstimate(id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
+
     c.JSON(http.StatusOK, gin.H{"message": "Estimate deleted successfully"})
 }

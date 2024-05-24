@@ -10,18 +10,26 @@ import (
 
 var DB *sql.DB
 
-func SetupDatabase() {
-    var err error
+func SetupDatabase() error {
     connStr := config.GetEnv("DATABASE_URL")
-    DB, err = sql.Open("postgres", connStr)
+    db, err := sql.Open("postgres", connStr)
     if err != nil {
-        log.Fatal(err)
+        return err
     }
 
-    err = DB.Ping()
-    if err != nil {
-        log.Fatal(err)
+    if err := db.Ping(); err != nil {
+        db.Close()
+        return err
     }
 
+    DB = db
     log.Println("Successfully connected to the database")
+    return nil
+}
+
+func CloseDatabase() {
+    if DB != nil {
+        DB.Close()
+        log.Println("Database connection closed")
+    }
 }
