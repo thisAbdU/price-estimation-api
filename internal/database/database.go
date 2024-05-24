@@ -1,30 +1,36 @@
 package database
 
 import (
-    "database/sql"
-    "log"
-    "price-estimation-api/internal/config"
+	"context"
+	"database/sql"
+	"log"
+	"price-estimation-api/internal/config"
+	"time"
 
-    _ "github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
-func SetupDatabase() error {
-    connStr := config.GetEnv("DATABASE_URL")
-    db, err := sql.Open("postgres", connStr)
+func SetupDatabase(env *config.Env) error {
+   ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+   defer cancel()
+
+   dbUrl := "host=" + env.DB_HOST + " port=" + env.DB_PORT + " user=" + env.DB_USER + " dbname=" + env.DB_NAME + " password=" + env.DB_PASSWORD + " sslmode=disable"
+    db, err := sql.Open("postgres", dbUrl)
     if err != nil {
         return err
     }
 
-    if err := db.Ping(); err != nil {
-        db.Close()
+    err = db.PingContext(ctx)
+    if err != nil {
         return err
     }
 
     DB = db
-    log.Println("Successfully connected to the database")
+    log.Println("Database connection established")
     return nil
+
 }
 
 func CloseDatabase() {

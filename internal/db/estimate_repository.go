@@ -52,8 +52,6 @@ func (r *estimateRepository) GetEstimates() ([]domain.Estimate, error) {
             ID:          e.ID,
             ProductName: e.ProductName,
             Price:       e.Price,
-            Longitude:   e.Longitude,
-            Latitude:    e.Latitude,
         })
     }
 
@@ -91,8 +89,6 @@ func (r *estimateRepository) UpdateEstimate(estimate domain.Estimate) (domain.Es
         ID:          updatedEstimate.ID,
         ProductName: updatedEstimate.ProductName,
         Price:       updatedEstimate.Price,
-        Longitude:   updatedEstimate.Longitude,
-        Latitude:    updatedEstimate.Latitude,
     }, nil
 }
 
