@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+    "price-estimation-api/internal/app"
+    "price-estimation-api/internal/config"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+    config.LoadEnv()
+    app.Start()
 }
