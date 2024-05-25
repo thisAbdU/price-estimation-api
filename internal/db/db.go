@@ -17,15 +17,15 @@ type DBTX interface {
 }
 
 func New(db DBTX) *Queries {
-	return &Queries{db: db}
+    return &Queries{db: db}
 }
 
 type Queries struct {
-	db DBTX
+    db DBTX
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
-	return &Queries{
-		db: tx,
-	}
+    return &Queries{
+        db: tx,
+    }
 }

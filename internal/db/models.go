@@ -4,19 +4,10 @@
 
 package db
 
-import (
-    "database/sql"
-)
-
 type Estimate struct {
-    ID          int32          `json:"id"`
-    ProductName string         `json:"product_name"`
-    Price       string         `json:"price"`
-    Longitude   sql.NullString `json:"longitude"`
-    Latitude    sql.NullString `json:"latitude"`
-}
-
-type GetEstimatesWithPaginationParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	ID          int32  `json:"id"`
+	ProductName string `json:"product_name"`
+	Price       string `json:"price"`
+	Longitude   string `json:"longitude"`
+	Latitude    string `json:"latitude"`
 }

@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createEstimate = `-- name: CreateEstimate :one
@@ -17,8 +16,8 @@ RETURNING id, product_name, price, longitude, latitude
 `
 
 type CreateEstimateParams struct {
-	ProductName string         `json:"product_name"`
-	Price       float64         `json:"price"`
+	ProductName string `json:"product_name"`
+	Price       string `json:"price"`
 	Longitude   string `json:"longitude"`
 	Latitude    string `json:"latitude"`
 }
@@ -38,7 +37,6 @@ func (q *Queries) CreateEstimate(ctx context.Context, arg CreateEstimateParams) 
 		&i.Longitude,
 		&i.Latitude,
 	)
-
 	return i, err
 }
 
@@ -78,6 +76,11 @@ ORDER BY id
 LIMIT $1 OFFSET $2
 `
 
+type GetEstimatesWithPaginationParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
 func (q *Queries) GetEstimatesWithPagination(ctx context.Context, arg GetEstimatesWithPaginationParams) ([]Estimate, error) {
 	rows, err := q.db.QueryContext(ctx, getEstimatesWithPagination, arg.Limit, arg.Offset)
 	if err != nil {
@@ -115,11 +118,11 @@ RETURNING id, product_name, price, longitude, latitude
 `
 
 type UpdateEstimateParams struct {
-	ID          int32          `json:"id"`
-	ProductName string         `json:"product_name"`
-	Price       string         `json:"price"`
-	Longitude   sql.NullString `json:"longitude"`
-	Latitude    sql.NullString `json:"latitude"`
+	ID          int32  `json:"id"`
+	ProductName string `json:"product_name"`
+	Price       string `json:"price"`
+	Longitude   string `json:"longitude"`
+	Latitude    string `json:"latitude"`
 }
 
 func (q *Queries) UpdateEstimate(ctx context.Context, arg UpdateEstimateParams) (Estimate, error) {

@@ -2,45 +2,45 @@ package module
 
 import (
 	"context"
-	"price-estimation-api/internal/domain"
+	"price-estimation-api/internal/db"
 	"price-estimation-api/internal/ports"
-
 )
 
 type EstimateUsecase interface {
-	CreateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error)
-	GetEstimates(ctx context.Context) ([]domain.Estimate, error)
-	GetEstimate(ctx context.Context, id int) (domain.Estimate, error)
-	DeleteEstimate(ctx context.Context, id int) error
-	UpdateEstimate(ctx context.Context, id int) (domain.Estimate, error)
+	CreateEstimate(ctx context.Context, estimate db.Estimate) (db.Estimate, error)
+	GetEstimates(ctx context.Context, limit, offset int32) ([]db.Estimate, error)
+	GetEstimate(ctx context.Context, id int32) (db.Estimate, error)
+	DeleteEstimate(ctx context.Context, id int32) error
+	UpdateEstimate(ctx context.Context, id int32) (db.Estimate, error)
 }
-
 
 type estimateUsecase struct {
-	estimateRepo  ports.EstimateRepository
+	estimateRepo ports.EstimateRepository
 }
 
-func NewEstimateUsecase(repo ports.EstimateRepository) EstimateUsecase {
-	return &estimateUsecase{estimateRepo: repo}
+// UpdateEstimate implements EstimateUsecase.
+func (e *estimateUsecase) UpdateEstimate(ctx context.Context, id int32) (db.Estimate, error) {
+	panic("unimplemented")
 }
 
-func (s *estimateUsecase) CreateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error) {
-	return s.estimateRepo.CreateEstimate(ctx, estimate)
+func NewEstimateUsecase(estimateRepo ports.EstimateRepository) EstimateUsecase {
+	return &estimateUsecase{
+		estimateRepo: estimateRepo,
+	}
 }
 
-func (s *estimateUsecase) GetEstimates(ctx context.Context) ([]domain.Estimate, error) {
-	return s.estimateRepo.GetEstimates(ctx)
+func (e *estimateUsecase) CreateEstimate(ctx context.Context, estimate db.Estimate) (db.Estimate, error) {
+	return e.estimateRepo.CreateEstimate(ctx, estimate)
 }
 
-func (s *estimateUsecase) GetEstimate(ctx context.Context, id int) (domain.Estimate, error) {
-	return s.estimateRepo.GetEstimateByID(ctx, id)
+func (e *estimateUsecase) GetEstimates(ctx context.Context, limit, offset int32) ([]db.Estimate, error) {
+	return e.estimateRepo.GetEstimatesWithPagination(ctx, limit, offset)
 }
 
-func (s *estimateUsecase) DeleteEstimate(ctx context.Context, id int) error {
-	return s.estimateRepo.DeleteEstimate(ctx, id)
+func (e *estimateUsecase) GetEstimate(ctx context.Context, id int32) (db.Estimate, error) {
+	return e.estimateRepo.GetEstimateByID(ctx, id)
 }
 
-func (s *estimateUsecase) UpdateEstimate(ctx context.Context, id int) (domain.Estimate, error) {
-	return s.estimateRepo.UpdateEstimate(ctx, id)
-	
+func (e *estimateUsecase) DeleteEstimate(ctx context.Context, id int32) error {
+	return e.estimateRepo.DeleteEstimate(ctx, id)
 }

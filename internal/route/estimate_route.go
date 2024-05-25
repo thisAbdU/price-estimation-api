@@ -14,7 +14,7 @@ import (
 func NewEstimateRoute(env *App.Application, router *gin.RouterGroup, db *sql.DB) {
 	er := persistance.NewEstimateRepository(db)
 	eu := module.NewEstimateUsecase(er)
-
+	
 	estimateHandler := rest.NewEstimateHandler(eu)
 
 	estimateGroup := router.Group("/estimations")
