@@ -16,30 +16,31 @@ type EstimateUsecase interface {
 }
 
 
-type Service struct {
+type estimateUsecase struct {
 	estimateRepo  ports.EstimateRepository
 }
 
-func NewService(repo ports.EstimateRepository) *Service {
-	return &Service{estimateRepo: repo}
+func NewEstimateUsecase(repo ports.EstimateRepository) EstimateUsecase {
+	return &estimateUsecase{estimateRepo: repo}
 }
 
-func (s *Service) CreateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error) {
+func (s *estimateUsecase) CreateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error) {
 	return s.estimateRepo.CreateEstimate(ctx, estimate)
 }
 
-func (s *Service) GetEstimates(ctx context.Context) ([]domain.Estimate, error) {
+func (s *estimateUsecase) GetEstimates(ctx context.Context) ([]domain.Estimate, error) {
 	return s.estimateRepo.GetEstimates(ctx)
 }
 
-func (s *Service) GetEstimate(ctx context.Context, id int) (domain.Estimate, error) {
+func (s *estimateUsecase) GetEstimate(ctx context.Context, id int) (domain.Estimate, error) {
 	return s.estimateRepo.GetEstimateByID(ctx, id)
 }
 
-func (s *Service) DeleteEstimate(ctx context.Context, id int) error {
+func (s *estimateUsecase) DeleteEstimate(ctx context.Context, id int) error {
 	return s.estimateRepo.DeleteEstimate(ctx, id)
 }
 
-func (s *Service) UpdateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error) {
-	return s.estimateRepo.UpdateEstimate(ctx, estimate)
+func (s *estimateUsecase) UpdateEstimate(ctx context.Context, id int) (domain.Estimate, error) {
+	return s.estimateRepo.UpdateEstimate(ctx, id)
+	
 }
