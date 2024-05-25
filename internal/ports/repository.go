@@ -1,11 +1,14 @@
 package ports
 
-import "price-estimation-api/internal/domain"
+import (
+	"context"
+	"price-estimation-api/internal/domain"
+)
 
 type EstimateRepository interface {
-    CreateEstimate(estimate domain.Estimate) (domain.Estimate, error)
-    GetEstimates() ([]domain.Estimate, error)
-    GetEstimateByID(id int) (domain.Estimate, error)
-    UpdateEstimate(estimate domain.Estimate) (domain.Estimate, error)
-    DeleteEstimate(id int) error
+    CreateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error)
+    GetEstimates(ctx context.Context) ([]domain.Estimate, error)
+    GetEstimateByID(ctx context.Context, id int) (domain.Estimate, error)
+    UpdateEstimate(ctx context.Context, estimate domain.Estimate) (domain.Estimate, error)
+    DeleteEstimate(ctx context.Context, id int) error
 }

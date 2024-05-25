@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"price-estimation-api/internal/config"
 	"time"
@@ -16,9 +17,11 @@ func SetupDatabase(env *config.Env) error {
    ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
    defer cancel()
 
-   dbUrl := "host=" + env.DB_HOST + " port=" + env.DB_PORT + " user=" + env.DB_USER + " dbname=" + env.DB_NAME + " password=" + env.DB_PASSWORD + " sslmode=disable"
+    dbUrl := "host=" + env.DB_HOST + " port=" + env.DB_PORT + " user=" + env.DB_USER + " dbname=" + env.DB_NAME + " password=" + env.DB_PASSWORD + " sslmode=disable"
+    
     db, err := sql.Open("postgres", dbUrl)
     if err != nil {
+        fmt.Println("Error opening database connection:", err)
         return err
     }
 

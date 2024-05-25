@@ -1,87 +1,75 @@
-package handlers
+package rest
 
 import (
-    "net/http"
-    "price-estimation-api/internal/domain"
-    "price-estimation-api/internal/ports"
-    "strconv"
+	"net/http"
+	"price-estimation-api/internal/domain"
+	"price-estimation-api/internal/module"
+	"strconv"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 type Handlers struct {
-    estimateRepo ports.EstimateRepository
+    EstimateUsecase module.EstimateUsecase
 }
 
-func NewHandlers(repo ports.EstimateRepository) *Handlers {
-    return &Handlers{estimateRepo: repo}
+func NewEstimateHandler(estimateUsecase module.EstimateUsecase) *Handlers {
+    return &Handlers{EstimateUsecase: estimateUsecase}
 }
+
 
 func (h *Handlers) CreateEstimate(c *gin.Context) {
     var estimate domain.Estimate
-    if err := c.ShouldBindJSON(&estimate); err != nil {
+
+    if err := c.BindJSON(&estimate); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    newEstimate, err := h.estimateRepo.CreateEstimate(estimate)
+    createdEstimate, err := h.EstimateUsecase.CreateEstimate(c.Request.Context(), estimate)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusCreated, newEstimate)
-}
-
-func (h *Handlers) GetEstimates(c *gin.Context) {
-    limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-    if err != nil || limit <= 0 {
-        limit = 10
-    }
-
-    offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
-    if err != nil || offset < 0 {
-        offset = 0
-    }
-
-    estimates, err := h.estimateRepo.GetEstimates()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    c.JSON(http.StatusOK, estimates)
+    c.JSON(http.StatusCreated, createdEstimate)
 }
 
 func (h *Handlers) GetEstimate(c *gin.Context) {
-    id, err := strconv.Atoi(c.Param("id"))
+    idStr := c.Param("id")
+
+    id, err := strconv.Atoi(idStr)
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID must be an integer"})
         return
     }
 
-    estimate, err := h.estimateRepo.GetEstimateByID(id)
+    estimate, err := h.EstimateUsecase.GetEstimate(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
+
     c.JSON(http.StatusOK, estimate)
 }
 
 func (h *Handlers) UpdateEstimate(c *gin.Context) {
-    id, err := strconv.Atoi(c.Param("id"))
+    idStr := c.Param("id")
+
+    id, err := strconv.Atoi(idStr)
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID must be an integer"})
         return
     }
 
     var estimate domain.Estimate
-    if err := c.ShouldBindJSON(&estimate); err != nil {
+
+    if err := c.BindJSON(&estimate); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    estimate.ID = id
 
-    updatedEstimate, err := h.estimateRepo.UpdateEstimate(estimate)
+    updatedEstimate, err := h.EstimateUsecase.UpdateEstimate(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -91,17 +79,30 @@ func (h *Handlers) UpdateEstimate(c *gin.Context) {
 }
 
 func (h *Handlers) DeleteEstimate(c *gin.Context) {
-    id, err := strconv.Atoi(c.Param("id"))
+    idStr := c.Param("id")
+
+    id, err := strconv.Atoi(idStr)
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID must be an integer"})
         return
     }
 
-    err = h.estimateRepo.DeleteEstimate(id)
+    err = h.EstimateUsecase.DeleteEstimate(c.Request.Context(), id)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "Estimate deleted successfully"})
+    c.JSON(http.StatusNoContent, nil)
 }
+
+func (h *Handlers) GetEstimates(c *gin.Context) {
+    estimates, err := h.EstimateUsecase.GetEstimates(c.Request.Context())
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, estimates)
+}
+

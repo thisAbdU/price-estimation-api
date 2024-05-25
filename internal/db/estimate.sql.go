@@ -18,9 +18,9 @@ RETURNING id, product_name, price, longitude, latitude
 
 type CreateEstimateParams struct {
 	ProductName string         `json:"product_name"`
-	Price       string         `json:"price"`
-	Longitude   sql.NullString `json:"longitude"`
-	Latitude    sql.NullString `json:"latitude"`
+	Price       float64         `json:"price"`
+	Longitude   string `json:"longitude"`
+	Latitude    string `json:"latitude"`
 }
 
 func (q *Queries) CreateEstimate(ctx context.Context, arg CreateEstimateParams) (Estimate, error) {
@@ -38,6 +38,7 @@ func (q *Queries) CreateEstimate(ctx context.Context, arg CreateEstimateParams) 
 		&i.Longitude,
 		&i.Latitude,
 	)
+
 	return i, err
 }
 
@@ -76,11 +77,6 @@ FROM estimates
 ORDER BY id
 LIMIT $1 OFFSET $2
 `
-
-type GetEstimatesWithPaginationParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
 
 func (q *Queries) GetEstimatesWithPagination(ctx context.Context, arg GetEstimatesWithPaginationParams) ([]Estimate, error) {
 	rows, err := q.db.QueryContext(ctx, getEstimatesWithPagination, arg.Limit, arg.Offset)

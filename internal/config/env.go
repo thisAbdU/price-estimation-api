@@ -10,12 +10,12 @@ import (
 )
 
 type Env struct {
-
-    DB_PORT string
-    DB_HOST string
-    DB_USER string
-    DB_NAME string
-    DB_PASSWORD string
+	ContextTimeout              int    `mapstructure:"CONTEXT_TIMEOUT"`
+    DB_PORT string `mapstructure:"DB_PORT"`
+    DB_HOST string `mapstructure:"DB_HOST"`
+    DB_USER string `mapstructure:"DB_USER"`
+    DB_NAME string `mapstructure:"DB_NAME"`
+	DB_PASSWORD string `mapstructure:"DB_PASSWORD"`
 }
 
 // NewEnv initializes and returns a new instance of the Env struct.

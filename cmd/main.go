@@ -1,11 +1,20 @@
 package main
 
 import (
-    "price-estimation-api/internal/app"
-    "price-estimation-api/internal/config"
+	"fmt"
+	"price-estimation-api/internal/app"
+	"time"
 )
 
 func main() {
-    config.LoadEnv()
-    app.Start()
+    application := App.App()
+    defer application.Close()
+
+    env := application.Env
+
+    timeout := time.Duration(env.ContextTimeout) * time.Second
+    fmt.Println("Server running on port 8080")
+    
+   
+
 }

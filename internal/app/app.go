@@ -1,23 +1,31 @@
 package App
 
 import (
-    "price-estimation-api/internal/config"
-    "price-estimation-api/internal/database"
+	"log"
+	"price-estimation-api/internal/config"
+	"price-estimation-api/internal/database"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func App() {
-    // Load environment variables
-    env := config.NewEnv()
+type Application struct{
+    Env *config.Env
+    PostgresPool  *pgxpool.Pool 
+}
+func App() Application {
+    app := &Application{}
+    app.Env = config.NewEnv()
 
-    // Set up the database
-    if err := database.SetupDatabase(env); err != nil {
-        panic(err)
+    // Setup the database connection
+    err := database.SetupDatabase(app.Env)
+    if err != nil {
+        log.Fatalf("Error setting up database: %v", err)
     }
-
+    
+    return *app
 }
 
-func Close() {
+func (app *Application) Close(){
     // Close the database connection
     database.CloseDatabase()
 }

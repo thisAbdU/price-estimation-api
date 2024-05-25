@@ -16,8 +16,7 @@ type Estimate struct {
     Latitude    sql.NullString `json:"latitude"`
 }
 
-// Define the struct for pagination parameters
 type GetEstimatesWithPaginationParams struct {
-    Limit  int32
-    Offset int32
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
